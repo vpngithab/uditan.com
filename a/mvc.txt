@@ -1,0 +1,100 @@
+*The original code with mvc approach:
+index.php
+<?php
+define('APP_ROOT', dirname(__FILE__));
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+spl_autoload_register(function ($class_name) {
+    $directories = array(
+        'c/',
+        'm/'
+    );
+    foreach ($directories as $directory) {
+        $file = $directory . $class_name . '.php';
+        if (is_file($file)) {
+            require_once $file;
+        }
+    }
+});
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $controller = new ProductController();
+    $controller->index();
+}
+
+c/ProductController.php
+<?php
+class ProductController {
+    private $model;
+
+    public function __construct() {
+        $this->model = new ProductModel();
+    }
+
+    public function index() {
+        $products = $this->model->getProducts();
+        require_once APP_ROOT . '/v/indexView.php';
+    }
+}
+
+m/ProductModel.php
+<?php
+class ProductModel {
+    private $db;
+
+    public function __construct() {
+        $this->db = new DB();
+    }
+
+    public function getProducts() {
+        return $this->db->query("SELECT * FROM item");
+    }
+}
+
+v/indexView.php
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Item Picker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <?php foreach ($products->rows as $product): ?>
+        <div class="product">
+            <img src="<?php echo $product['thumbnail']; ?>" alt="Product Image">
+            <p><?php echo $product['description']; ?></p>
+            <input type="number" class="quantity" value="1" min="1">
+            <button class="add-to-cart" data-id="<?php echo $product['id']; ?>">Add to Cart</button>
+        </div>
+    <?php endforeach; ?>
+    <div id="cart"></div>
+    <button id="checkout">Checkout</button>
+    <script src="script.js"></script>
+</body>
+</html>
+
+script.js
+document.addEventListener('DOMContentLoaded', () => {
+    // Handle 'Add to Cart' button click
+    document.querySelectorAll('.add-to-cart').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const id = event.target.dataset.id;
+            const quantity = event.target.previousElementSibling.value;
+            
+            // AJAX request to add to cart
+            // Make sure to update the `#cart` element with the new cart item
+        });
+    });
+
+    // Handle 'Checkout' button click
+    document.querySelector('#checkout').addEventListener('click', () => {
+        const password = prompt('Enter your to checkout');
+        
+        if (password === 'yourPassword') {  // Replace 'yourPassword' with the actual password
+            // AJAX request to checkout
+            // Clear the `#cart` element
+        }
+    });
+});
